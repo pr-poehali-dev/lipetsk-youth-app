@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import EventCard from '@/components/EventCard';
 import CommunityCard from '@/components/CommunityCard';
 import NavigationBar from '@/components/NavigationBar';
@@ -7,102 +7,63 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import Icon from '@/components/ui/icon';
 
+interface Event {
+  id: string;
+  title: string;
+  category: string;
+  date: string;
+  time: string;
+  location: string;
+  participants: number;
+  description: string;
+}
+
+interface Community {
+  id: string;
+  name: string;
+  category: string;
+  description: string;
+  members: number;
+}
+
 export default function Index() {
   const [activeTab, setActiveTab] = useState('events');
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('все');
   const [favorites, setFavorites] = useState<string[]>([]);
   const [joinedCommunities, setJoinedCommunities] = useState<string[]>([]);
+  const [events, setEvents] = useState<Event[]>([]);
+  const [communities, setCommunities] = useState<Community[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetchEvents();
+    fetchCommunities();
+  }, []);
+
+  const fetchEvents = async () => {
+    try {
+      const response = await fetch('https://functions.poehali.dev/af47ddec-f8cf-44df-937b-46be8a87af18');
+      const data = await response.json();
+      setEvents(data.events || []);
+    } catch (error) {
+      console.error('Error fetching events:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const fetchCommunities = async () => {
+    try {
+      const response = await fetch('https://functions.poehali.dev/39a2fb46-48e4-438e-ad34-303a064e0bfd');
+      const data = await response.json();
+      setCommunities(data.communities || []);
+    } catch (error) {
+      console.error('Error fetching communities:', error);
+    }
+  };
 
   const categories = ['все', 'спорт', 'творчество', 'образование', 'развлечения', 'музыка', 'технологии'];
-
-  const events = [
-    {
-      id: '1',
-      title: 'Футбольный турнир "Кубок Липецка"',
-      category: 'спорт',
-      date: '25 декабря',
-      time: '14:00',
-      location: 'Стадион "Металлург"',
-      participants: 42,
-      description: 'Открытый турнир для молодежных команд. Приходи со своей командой или присоединяйся к новым знакомым!'
-    },
-    {
-      id: '2',
-      title: 'Мастер-класс по граффити',
-      category: 'творчество',
-      date: '22 декабря',
-      time: '16:00',
-      location: 'Арт-пространство "Циферблат"',
-      participants: 18,
-      description: 'Научись создавать уличное искусство от профессиональных художников. Все материалы предоставляются.'
-    },
-    {
-      id: '3',
-      title: 'Хакатон: Создай приложение',
-      category: 'образование',
-      date: '28-29 декабря',
-      time: '10:00',
-      location: 'Коворкинг "Точка кипения"',
-      participants: 65,
-      description: '48-часовой марафон по разработке. Найди команду, реализуй идею и получи призы!'
-    },
-    {
-      id: '4',
-      title: 'Новогодняя вечеринка',
-      category: 'развлечения',
-      date: '31 декабря',
-      time: '20:00',
-      location: 'Клуб "Underground"',
-      participants: 120,
-      description: 'Встречай Новый Год с молодежью Липецка! DJ-сет, конкурсы, фотозона и море позитива.'
-    }
-  ];
-
-  const communities = [
-    {
-      id: '1',
-      name: 'Беговой клуб Липецка',
-      category: 'спорт',
-      description: 'Пробежки каждое утро в парке. Присоединяйся к здоровому образу жизни!',
-      members: 87
-    },
-    {
-      id: '2',
-      name: 'Творческая лаборатория',
-      category: 'творчество',
-      description: 'Художники, музыканты, писатели — место для креативных экспериментов.',
-      members: 54
-    },
-    {
-      id: '3',
-      name: 'IT-комьюнити Липецк',
-      category: 'технологии',
-      description: 'Разработчики, дизайнеры и все, кто интересуется технологиями.',
-      members: 143
-    },
-    {
-      id: '4',
-      name: 'Киноклуб "48 кадров"',
-      category: 'развлечения',
-      description: 'Смотрим и обсуждаем авторское кино каждую пятницу.',
-      members: 32
-    },
-    {
-      id: '5',
-      name: 'Музыкальная гостиная',
-      category: 'музыка',
-      description: 'Акустические концерты, джем-сейшены, обмен опытом между музыкантами.',
-      members: 76
-    },
-    {
-      id: '6',
-      name: 'Языковой клуб',
-      category: 'образование',
-      description: 'Практика английского, немецкого, испанского с носителями и энтузиастами.',
-      members: 98
-    }
-  ];
 
   const toggleFavorite = (id: string) => {
     setFavorites(prev =>
@@ -187,23 +148,32 @@ export default function Index() {
               </span>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {filteredEvents.map((event) => (
-                <EventCard
-                  key={event.id}
-                  {...event}
-                  isFavorite={favorites.includes(event.id)}
-                  onToggleFavorite={toggleFavorite}
-                />
-              ))}
-            </div>
-
-            {filteredEvents.length === 0 && (
-              <div className="text-center py-16 animate-fade-in">
-                <Icon name="SearchX" size={64} className="mx-auto text-muted-foreground mb-4" />
-                <h3 className="text-xl font-bold text-foreground mb-2">Ничего не найдено</h3>
-                <p className="text-muted-foreground">Попробуйте изменить фильтры или поисковый запрос</p>
+            {loading ? (
+              <div className="text-center py-16">
+                <Icon name="Loader2" size={48} className="mx-auto text-primary animate-spin mb-4" />
+                <p className="text-muted-foreground">Загружаем события...</p>
               </div>
+            ) : (
+              <>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                  {filteredEvents.map((event) => (
+                    <EventCard
+                      key={event.id}
+                      {...event}
+                      isFavorite={favorites.includes(event.id)}
+                      onToggleFavorite={toggleFavorite}
+                    />
+                  ))}
+                </div>
+
+                {filteredEvents.length === 0 && (
+                  <div className="text-center py-16 animate-fade-in">
+                    <Icon name="SearchX" size={64} className="mx-auto text-muted-foreground mb-4" />
+                    <h3 className="text-xl font-bold text-foreground mb-2">Ничего не найдено</h3>
+                    <p className="text-muted-foreground">Попробуйте изменить фильтры или поисковый запрос</p>
+                  </div>
+                )}
+              </>
             )}
           </div>
         )}
