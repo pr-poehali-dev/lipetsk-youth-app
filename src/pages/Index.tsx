@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import EventCard from '@/components/EventCard';
 import CommunityCard from '@/components/CommunityCard';
 import NavigationBar from '@/components/NavigationBar';
+import ChatWindow from '@/components/ChatWindow';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -211,14 +212,9 @@ export default function Index() {
           </div>
         )}
 
-        {activeTab === 'calendar' && (
-          <div className="text-center py-16 animate-fade-in">
-            <Icon name="Calendar" size={64} className="mx-auto text-primary mb-4" />
-            <h3 className="text-2xl font-bold text-foreground mb-2">Календарь событий</h3>
-            <p className="text-muted-foreground mb-6">Планируй участие и не пропускай важные мероприятия</p>
-            <Button className="bg-gradient-to-r from-primary to-secondary text-primary-foreground">
-              Открыть календарь
-            </Button>
+        {activeTab === 'chat' && (
+          <div className="h-[calc(100vh-12rem)] animate-fade-in">
+            <ChatWindow />
           </div>
         )}
 

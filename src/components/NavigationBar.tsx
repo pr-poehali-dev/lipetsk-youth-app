@@ -9,7 +9,7 @@ export default function NavigationBar({ activeTab, onTabChange }: NavigationBarP
   const tabs = [
     { id: 'events', label: 'События', icon: 'CalendarDays' },
     { id: 'communities', label: 'Сообщества', icon: 'Users' },
-    { id: 'calendar', label: 'Календарь', icon: 'Calendar' },
+    { id: 'chat', label: 'Чат', icon: 'MessageCircle' },
     { id: 'profile', label: 'Профиль', icon: 'User' }
   ];
 
